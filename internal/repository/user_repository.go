@@ -7,7 +7,6 @@ import (
 	db "go-user-api/db/sqlc/generated"
 )
 
-
 type UserRepository struct {
 	Queries *db.Queries
 }
@@ -35,12 +34,22 @@ func (r *UserRepository) CreateUser(
 			Dob:  parsedDob,
 		},
 	)
-	
 }
 
-func (r *UserRepository) GetAllUsers() ([]db.User, error) {
-	return r.Queries.ListUsers(context.Background())
+func (r *UserRepository) GetAllUsers(
+	limit int32,
+	offset int32,
+) ([]db.User, error) {
+
+	return r.Queries.ListUsers(
+		context.Background(),
+		db.ListUsersParams{
+			Limit:  limit,
+			Offset: offset,
+		},
+	)
 }
+
 func (r *UserRepository) GetUserByID(id int32) (db.User, error) {
 	return r.Queries.GetUser(
 		context.Background(),
@@ -57,6 +66,7 @@ func (r *UserRepository) DeleteUser(
 		id,
 	)
 }
+
 func (r *UserRepository) UpdateUser(
 	id int32,
 	name string,
@@ -75,22 +85,9 @@ func (r *UserRepository) UpdateUser(
 	return r.Queries.UpdateUser(
 		context.Background(),
 		db.UpdateUserParams{
-			ID: id,
+			ID:   id,
 			Name: name,
-			Dob: parsedDob,
+			Dob:  parsedDob,
 		},
 	)
-}
-
-
-func CalculateAge(dob time.Time) int {
-	now := time.Now()
-
-	age := now.Year() - dob.Year()
-
-	if now.YearDay() < dob.YearDay() {
-		age--
-	}
-
-	return age
 }

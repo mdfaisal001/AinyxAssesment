@@ -87,7 +87,28 @@ func (h *UserHandler) GetAllUsers(
 
 	logger.Log.Info("Fetching all users")
 
-	users, err := h.Service.GetAllUsers()
+	page, _ := strconv.Atoi(
+		c.Query("page", "1"),
+	)
+
+	limit, _ := strconv.Atoi(
+		c.Query("limit", "10"),
+	)
+
+	if page < 1 {
+		page = 1
+	}
+
+	if limit < 1 {
+		limit = 10
+	}
+
+	offset := (page - 1) * limit
+
+	users, err := h.Service.GetAllUsers(
+		int32(limit),
+		int32(offset),
+	)
 
 	if err != nil {
 
@@ -117,9 +138,17 @@ func (h *UserHandler) GetAllUsers(
 	logger.Log.Info(
 		"Users fetched successfully",
 		zap.Int("count", len(response)),
+		zap.Int("page", page),
+		zap.Int("limit", limit),
 	)
 
-	return c.JSON(response)
+	return c.JSON(
+		fiber.Map{
+			"page":  page,
+			"limit": limit,
+			"data":  response,
+		},
+	)
 }
 func (h *UserHandler) GetUserByID(
 	c *fiber.Ctx,

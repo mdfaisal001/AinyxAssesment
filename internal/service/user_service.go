@@ -25,8 +25,15 @@ func (s *UserService) CreateUser(
 	return s.Repo.CreateUser(name, dob)
 }
 
-func (s *UserService) GetAllUsers() ([]db.User, error) {
-	return s.Repo.GetAllUsers()
+func (s *UserService) GetAllUsers(
+	limit int32,
+	offset int32,
+) ([]db.User, error) {
+
+	return s.Repo.GetAllUsers(
+		limit,
+		offset,
+	)
 }
 
 func (s *UserService) GetUserByID(id int32) (db.User, error) {
